@@ -24,12 +24,14 @@ from zapv2 import ZAPv2
 
 
 # The URL of the application to be tested
-target = 'http://host.docker.internal:8888'
+target = 'http://host.docker.internal:5002'
 # Change to match the API key set in ZAP, or use None if the API key is disabled
 apiKey = 'changeMe'
 
 # By default ZAP API client will connect to port 8080
 zap = ZAPv2(apikey=apiKey)
+
+# ---------------------------------------------Import OpenAPI Spec--------------------------------------------
 
 
 # ---------------------------------------------Spidering--------------------------------------------
@@ -45,15 +47,20 @@ print('Spider completed')
 
 #---------------------------------------------Disable Scanners PASSIVE AND ACTIVE---------------------------------------------
 
-zap.ascan.disable_all_scanners(apikey=apiKey)
+# zap.ascan.disable_all_scanners(apikey=apiKey)
 zap.pscan.disable_all_scanners(apikey=apiKey)
 print('Disabled all active and passive scanners.')
 
+# ---------------------------------------------Enable ALL Scanners PASSIVE AND ACTIVE---------------------------------------------
+zap.ascan.enable_all_scanners(apikey=apiKey)
+zap.pscan.enable_all_scanners(apikey=apiKey)
+print('Enabled all active and passive scanners.')
+
 # ---------------------------------------------Passive Scanning----------------------------------------------
-passive_api_scanners = [10020] # Anti Clickjacking Header
-for sid in passive_api_scanners:
-    zap.pscan.enable_scanners(sid, apikey=apiKey)
-print('Enabled selected passive scanners: {}'.format(passive_api_scanners))
+# passive_api_scanners = [10020] # Anti Clickjacking Header
+# for sid in passive_api_scanners:
+#     zap.pscan.enable_scanners(sid, apikey=apiKey)
+# print('Enabled selected passive scanners: {}'.format(passive_api_scanners))
 zap.core.delete_all_alerts()
 print('Passive Scanning target {}'.format(target))
 
@@ -69,10 +76,10 @@ for a in alerts:
     print(a['pluginId'], a['alert'], a['risk'], a['url'])
 
 # ---------------------------------------------Active Scanning----------------------------------------------
-api_scanners = [40034] # Exposed .env
-for sid in api_scanners:
-    zap.ascan.enable_scanners(sid, apikey=apiKey)
-print('Enabled selected active scanners: {}'.format(api_scanners))
+# api_scanners = [40034] # Exposed .env
+# for sid in api_scanners:
+#     zap.ascan.enable_scanners(sid, apikey=apiKey)
+# print('Enabled selected active scanners: {}'.format(api_scanners))
 zap.core.delete_all_alerts()
 scanID = zap.ascan.scan(target)
 while int(zap.ascan.status(scanID)) < 100:
