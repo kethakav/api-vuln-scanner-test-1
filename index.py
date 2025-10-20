@@ -49,8 +49,27 @@ zap.ascan.disable_all_scanners(apikey=apiKey)
 zap.pscan.disable_all_scanners(apikey=apiKey)
 print('Disabled all active and passive scanners.')
 
+# ---------------------------------------------Passive Scanning----------------------------------------------
+passive_api_scanners = [10020] # Anti Clickjacking Header
+for sid in passive_api_scanners:
+    zap.pscan.enable_scanners(sid, apikey=apiKey)
+print('Enabled selected passive scanners: {}'.format(passive_api_scanners))
+zap.core.delete_all_alerts()
+print('Passive Scanning target {}'.format(target))
+
+while int(zap.pscan.records_to_scan) > 0:
+    print('Records to passive scan: {}'.format(zap.pscan.records_to_scan))
+    time.sleep(2)
+print('Passive Scan completed')
+
+print('Alerts after Passive Scan:')
+alerts = zap.core.alerts()
+print(len(alerts), "alerts found")
+for a in alerts:
+    print(a['pluginId'], a['alert'], a['risk'], a['url'])
+
 # ---------------------------------------------Active Scanning----------------------------------------------
-api_scanners = [40034]  # Example IDs 40018, 40019, 40020, 40021, 40022, 40023, 40024, 40027
+api_scanners = [40034] # Exposed .env
 for sid in api_scanners:
     zap.ascan.enable_scanners(sid, apikey=apiKey)
 print('Enabled selected active scanners: {}'.format(api_scanners))
@@ -76,11 +95,15 @@ for a in alerts:
 # for sid in api_scanners:
 #     zap.ascan.enable_scanners(sid, apikey=apiKey)
 # zap.ascan.disable_all_scanners()
-# scanners = zap.ascan.scanners()
-# print('Enabled scanners after disabling all:')
+
+# ---------------------------------------------Check All available Scanners----------------------------------------------
+# # Get passive scan scanners
+# zap.pscan.enable_all_scanners(apikey=apiKey)
+# # zap.ascan.enable_all_scanners(apikey=apiKey)
+# scanners = zap.pscan.scanners
+# print('Enabled scanners:')
 # for s in scanners:
-#     if s['enabled'] == 'true':
-#         print(s['id'], s['name'])
+#     print(s['id'], s['enabled'], s['name'])
 # print([s for s in scanners if s['enabled'] == 'true'])
 
 
